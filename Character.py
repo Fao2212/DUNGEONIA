@@ -1,5 +1,6 @@
 import random
 import time    
+import json
 
 random.seed(time.time())
 
@@ -20,6 +21,14 @@ class Character:
         self.images = [image]
         self.nextCharacterUpgrade = 30
         self.journal = ""
+        self.abilities = ""
+        self.inventory = ""
+        self.skills = ""
+        self.mainWeapon = ""
+        self.goals = ""
+        self.fears = ""
+        self.personallity = ""
+
 
     def printUser(self):
         print(f"""Name:{self.name} LEVEL:{self.level} EXP:{self.experience} ADVENTURES:{self.numberOfAdventures}
@@ -50,3 +59,20 @@ class Character:
     def levelUpMessage(self):
         print(f"Congratulations you LVL UP")
         self.printStats()
+    
+    def setTraits(self,jsonTraits):
+        try:
+            traits = json.loads(jsonTraits)
+        except:
+            print("Error with JSON LOAD")
+        try:
+            self.abilities = traits["abilities"]
+            self.inventory = traits["inventory"]
+            self.skills = traits["skills"]
+            self.mainWeapon = traits["mainWeapon"]
+            self.goals = traits["goals"]
+            self.fears = traits["fears"]
+            self.personallity = traits["personality"]
+        except:
+            print("Error reading the dictionary")
+        
