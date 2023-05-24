@@ -76,3 +76,5 @@ class Character:
         except:
             print("Error reading the dictionary")
         
+    def toJSON(self):
+        return json.dumps(self.__dict__)

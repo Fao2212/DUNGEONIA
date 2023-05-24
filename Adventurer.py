@@ -1,26 +1,13 @@
 import firebase
 import IAContact
+import FirebaseContact
 from Character import Character
 
-
-firebaseConfig = '''{
-  apiKey: "AIzaSyBhaNwwTFDvdGx44D7PQYiObdRBAW6trf0",
-  authDomain: "dungeonia-deeec.firebaseapp.com",
-  projectId: "dungeonia-deeec",
-  storageBucket: "dungeonia-deeec.appspot.com",
-  messagingSenderId: "105276791363",
-  appId: "1:105276791363:web:087cbfac44ca4962b692f6"
-}'''
-
 turnsInAdventure = 5
+currentTurn = 1
+theuser = ""
 adventure = ""
-#Use a prompt to get the main sentence of the adventure to add it to the player Journal
-#Updaate the player Journal/Description/Image
-
-
-
-
-#Next Event (The IA generate the next Event and the player reaacts to it. It modifies the course of the history)
+character = None
 
 #Create a new description for the player when he levels using the journal
 #Create a new image for the player when he levels using the journal
@@ -41,40 +28,83 @@ userCreationPrompt2 = """fill the JSON using the text
 }
 """
 #Creation of a character using the user prompt. Generates a description, an image and a new object of Character class to be stored in the DB. 
-def createCharacter(username,characterName,userPrompt):
-    characterDescription = IAContact.get_response(f"The Character name is: {characterName} "+userPrompt+userCreationPrompt1,username)
-    characterTraits = IAContact.get_response(characterDescription+userCreationPrompt2,username)
+def createCharacter(userPrompt):
+    characterDescription = IAContact.get_response(f"{userCreationPrompt1} The Character name is: {theuser} Character description:{userPrompt}",theuser)
+    characterTraits = IAContact.get_response(characterDescription+userCreationPrompt2,theuser)
     imagePrompt = characterDescription
     if len(imagePrompt) > 1000:
         imagePrompt = imagePrompt[0:1000]
-    image = IAContact.get_image(imagePrompt,username)
-    createdCharacter = Character(characterName,characterDescription,image)
+    image = IAContact.get_image(imagePrompt,theuser)
+    character = Character(theuser,characterDescription,image)
     print(characterTraits)
-    createdCharacter.setTraits(characterTraits)
-    createdCharacter.printUser()
+    character.setTraits(characterTraits)
+    character.printUser()
     #Save character in the database
+    FirebaseContact.createUser(theuser,character.toJSON())
+    
 
 #Get the player from the database
-def playerConnect(username):
-    #from username get the character from database
-    #return player
-    pass
+def playerConnect(providedUsername):
+    global theuser
+    theuser = providedUsername
+    global character
+    character = FirebaseContact.readCharacter(theuser)
+    print(character)
+
 
 #Create the main history. Then use this history to describe the events to interact with the player.
 adventureSAUCE = """
-Create a D&D history using the previous description of the adventure. Make the history engaging
-history:{
-    allies:
-    nameOfThePlaceWhereTheAdventureDevelop:
-    enemies:
-    mainQuest:
-    inventory:
-}
+Create a D&D history using the description points provide, if it is empty, then create a random D&D adventure. Make the history engaging and define the next things into it.
+    allies,
+    nameOfThePlaceWhereTheAdventureDevelop,
+    enemies,
+    mainQuest,
+    inventory
 """
 
+#Use a prompt to get the main sentence of the adventure to add it to the player Journal
 #Create a new history with the player request or random (params to adjust the history).
-def createAdventure():
-    characterDescription = IAContact.get_response(f"The Character name is: {characterName} "+userPrompt+userCreationPrompt1)
-    pass
+def StartAdventure(userPrompt):
+    global currentTurn
+    global character
+    currentTurn = 1
+    global adventure
+    adventure = IAContact.get_response(f"{adventureSAUCE} Protagonist of the history:{character.printUser()} History Initial Plot: {userPrompt}",theuser)
+    print(adventure)
 
-createCharacter("Bonito","Bobito","He is a brave dog knight that lives in the forest, he eat everything that he encounters in there. Had an injury in his leg but he is a good fighter.")
+
+eventString = "Create a continuation to this history. Using this caracter information"
+
+#Updaate the player Journal/Description/Image
+#Next Event (The IA generate the next Event and the player reaacts to it. It modifies the course of the history)
+def NextTurn(playerResponse):
+    global currentTurn
+    global adventure
+    global character
+    currentTurn += 1
+    characterJson = character.toJSON()
+    nextTurnStr = f"{eventString}  character:{characterJson}  current history:{adventure} playerResponse:{playerResponse}"
+    adventure += " " + IAContact.get_response(nextTurnStr)
+    if(currentTurn == 5):
+        character.completeAdventure(adventure)
+        FirebaseContact.updateCharacter(theuser,characterJson)
+        print("Adventure finished")
+        return
+    print(adventure)
+    userPrompt = input("Enter next action")
+    NextTurn(userPrompt)
+
+
+characterNamePrompt = input("Enter a name for your character")
+playerConnect(characterNamePrompt)
+if(character != None):
+    userPrompt = input("Give hints for your first adventure.")
+    StartAdventure(userPrompt)
+else:
+    userPrompt = input("Enter a description for your character")
+    createCharacter(userPrompt)
+    userPrompt = input("Give hints for your first adventure.")
+    StartAdventure(userPrompt)
+
+
+
