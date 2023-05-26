@@ -27,8 +27,34 @@ class Character:
         self.mainWeapon = ""
         self.goals = ""
         self.fears = ""
-        self.personallity = ""
+        self.personality = ""
 
+    def __init__(self,input) -> None:
+        self.name = input.get("name")
+        self.level = input.get("level")
+        self.description = input.get("description")
+        self.experience = input.get("experience")
+        self.experieceToNextLevel = input.get("experieceToNextLevel")
+        self.numberOfAdventures = input.get("numberOfAdventures")
+        self.currentImage = input.get("image")
+        #Add the first image to the image list
+        self.images = input.get("images")
+        self.nextCharacterUpgrade = input.get("nextCharacterUpgrade")
+        self.journal = input.get("journal")
+        self.abilities = input.get("abilities")
+        self.inventory = input.get("inventory")
+        self.skills = input.get("skills")
+        self.mainWeapon = input.get("mainWeapon")
+        self.goals = input.get("goals")
+        self.fears = input.get("fears")
+        self.personality = input.get("personality")
+
+    def stringToPrompt(self):
+        return f'''Name:{self.name} LEVEL:{self.level} EXP:{self.experience} ADVENTURES:{self.numberOfAdventures}
+                Experience to Next Level: {self.experieceToNextLevel}
+                Description:{self.description} Inventory:{self.inventory} Journal:{self.journal}
+                Abilities:{self.abilities} MainWeapon:{self.mainWeapon} Skills:{self.skills}
+                Goals:{self.goals} Fears:{self.fears} Personality:{self.personality}'''
 
     def printUser(self):
         print(f"""Name:{self.name} LEVEL:{self.level} EXP:{self.experience} ADVENTURES:{self.numberOfAdventures}
@@ -72,7 +98,7 @@ class Character:
             self.mainWeapon = traits["mainWeapon"]
             self.goals = traits["goals"]
             self.fears = traits["fears"]
-            self.personallity = traits["personality"]
+            self.personality = traits["personality"]
         except:
             print("Error reading the dictionary")
         

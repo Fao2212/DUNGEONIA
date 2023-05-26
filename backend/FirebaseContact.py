@@ -2,14 +2,14 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 from firebase import firebase
+import os
 
-cred = credentials.Certificate("serviceAccountKey.json")
+cred = credentials.Certificate("backend\serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client() # connecting to firestore
 firebase = firebase.FirebaseApplication('https://DUNGEONIA.firebaseio.com', None)
 
 userStr = "User"
-
 
 def createUser(userName,characterJSON):
     try:
@@ -22,10 +22,11 @@ def createUser(userName,characterJSON):
         print(message)
 
 def readCharacter(userName):
+    print(userName)
     try:
-        character = db.collection(userStr).document(userName).get()
-        if(character != None and character.exists()):
-            return character
+        readCharacter = db.collection(userStr).document(userName).get()
+        if(readCharacter != None and readCharacter.exists):
+            return readCharacter
         else:
             return None
     except Exception as ex:

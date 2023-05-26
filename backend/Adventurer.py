@@ -1,6 +1,7 @@
 import firebase
 import IAContact
 import FirebaseContact
+import json
 from Character import Character
 
 turnsInAdventure = 5
@@ -35,6 +36,7 @@ def createCharacter(userPrompt):
     if len(imagePrompt) > 1000:
         imagePrompt = imagePrompt[0:1000]
     image = IAContact.get_image(imagePrompt,theuser)
+    global character
     character = Character(theuser,characterDescription,image)
     print(characterTraits)
     character.setTraits(characterTraits)
@@ -48,18 +50,19 @@ def playerConnect(providedUsername):
     global theuser
     theuser = providedUsername
     global character
-    character = FirebaseContact.readCharacter(theuser)
+    print(theuser)
+    characterJSON = FirebaseContact.readCharacter(theuser).get("character")
+    character = json.loads(characterJSON, object_hook = Character)
     print(character)
 
 
 #Create the main history. Then use this history to describe the events to interact with the player.
 adventureSAUCE = """
-Create a D&D history using the description points provide, if it is empty, then create a random D&D adventure. Make the history engaging and define the next things into it.
+Create a D&D history using the description points provide. Make the history engaging and define the next things into it. Create a paragraph dont divide the text.
     allies,
     nameOfThePlaceWhereTheAdventureDevelop,
     enemies,
-    mainQuest,
-    inventory
+    mainQuest
 """
 
 #Use a prompt to get the main sentence of the adventure to add it to the player Journal
@@ -69,8 +72,10 @@ def StartAdventure(userPrompt):
     global character
     currentTurn = 1
     global adventure
-    adventure = IAContact.get_response(f"{adventureSAUCE} Protagonist of the history:{character.printUser()} History Initial Plot: {userPrompt}",theuser)
+    adventure = IAContact.get_response(f"{adventureSAUCE} Protagonist of the history:{character.stringToPrompt()} History Initial Plot: {userPrompt}",theuser)
     print(adventure)
+    userPrompt = input("Enter next action")
+    NextTurn(userPrompt)
 
 
 eventString = "Create a continuation to this history. Using this caracter information"
@@ -81,12 +86,14 @@ def NextTurn(playerResponse):
     global currentTurn
     global adventure
     global character
+    global theuser
     currentTurn += 1
     characterJson = character.toJSON()
     nextTurnStr = f"{eventString}  character:{characterJson}  current history:{adventure} playerResponse:{playerResponse}"
-    adventure += " " + IAContact.get_response(nextTurnStr)
+    adventure += " " + IAContact.get_response(nextTurnStr,theuser)
     if(currentTurn == 5):
         character.completeAdventure(adventure)
+        characterJson = character.toJSON()
         FirebaseContact.updateCharacter(theuser,characterJson)
         print("Adventure finished")
         return
