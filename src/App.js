@@ -28,12 +28,6 @@ const Root = () =>{
   return(
     <>
     <div>
-      <Link to = "/home">
-        Home
-      </Link>
-      <Link to = "/character">
-        Character
-      </Link>
     </div>
     <div>
       <Outlet/>

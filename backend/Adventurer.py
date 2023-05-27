@@ -101,6 +101,5 @@ def NextTurn(playerResponse):
     userPrompt = input("Enter next action")
     NextTurn(userPrompt)
 
-
-
-
+def getCharacter():
+    return {"characterInfo":character.toJSON()}

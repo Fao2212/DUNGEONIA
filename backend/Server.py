@@ -1,5 +1,5 @@
 from flask import Flask
-from Adventurer import createCharacter,playerConnect,StartAdventure,NextTurn
+from Adventurer import createCharacter,playerConnect,StartAdventure,NextTurn,getCharacter
 from flask import request
 
 app = Flask(__name__)
@@ -16,8 +16,12 @@ def tryLogin():
 @app.route("/createCharacter",methods=["POST"], strict_slashes=False)
 def createCharacterAPI():
     characterDescription = request.json['characterDescription']
-    print(characterDescription)
     return createCharacter(characterDescription)
+
+@app.route("/getCharacter")
+def getCharacterAPI():
+    return getCharacter()
+
 
 
 if __name__ == "__main__":
