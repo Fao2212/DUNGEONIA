@@ -16,13 +16,14 @@ def createUser(userName,characterJSON):
         db.collection(userStr).document(userName).set(
             {"character":characterJSON}
         )
+        return True
     except Exception as ex:
         template = "Cant create user in database. Arguments:\n{1!r}"
         message = template.format(type(ex).__name__, ex.args)
         print(message)
+        return False
 
 def readCharacter(userName):
-    print(userName)
     try:
         readCharacter = db.collection(userStr).document(userName).get()
         if(readCharacter != None and readCharacter.exists):

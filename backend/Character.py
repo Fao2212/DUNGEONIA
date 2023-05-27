@@ -29,25 +29,25 @@ class Character:
         self.fears = ""
         self.personality = ""
 
-    def __init__(self,input) -> None:
-        self.name = input.get("name")
-        self.level = input.get("level")
-        self.description = input.get("description")
-        self.experience = input.get("experience")
-        self.experieceToNextLevel = input.get("experieceToNextLevel")
-        self.numberOfAdventures = input.get("numberOfAdventures")
-        self.currentImage = input.get("image")
+    @staticmethod
+    def createFromJSON(input):
+        char = Character(input.get("name"),input.get("description"),input.get("image"))
+        char.level = input.get("level")
+        char.experience = input.get("experience")
+        char.experieceToNextLevel = input.get("experieceToNextLevel")
+        char.numberOfAdventures = input.get("numberOfAdventures")
         #Add the first image to the image list
-        self.images = input.get("images")
-        self.nextCharacterUpgrade = input.get("nextCharacterUpgrade")
-        self.journal = input.get("journal")
-        self.abilities = input.get("abilities")
-        self.inventory = input.get("inventory")
-        self.skills = input.get("skills")
-        self.mainWeapon = input.get("mainWeapon")
-        self.goals = input.get("goals")
-        self.fears = input.get("fears")
-        self.personality = input.get("personality")
+        char.images = input.get("images")
+        char.nextCharacterUpgrade = input.get("nextCharacterUpgrade")
+        char.journal = input.get("journal")
+        char.abilities = input.get("abilities")
+        char.inventory = input.get("inventory")
+        char.skills = input.get("skills")
+        char.mainWeapon = input.get("mainWeapon")
+        char.goals = input.get("goals")
+        char.fears = input.get("fears")
+        char.personality = input.get("personality")
+        return char
 
     def stringToPrompt(self):
         return f'''Name:{self.name} LEVEL:{self.level} EXP:{self.experience} ADVENTURES:{self.numberOfAdventures}

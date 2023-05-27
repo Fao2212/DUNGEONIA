@@ -42,7 +42,7 @@ def createCharacter(userPrompt):
     character.setTraits(characterTraits)
     character.printUser()
     #Save character in the database
-    FirebaseContact.createUser(theuser,character.toJSON())
+    return {"created":FirebaseContact.createUser(theuser,character.toJSON())}
     
 
 #Get the player from the database
@@ -50,10 +50,12 @@ def playerConnect(providedUsername):
     global theuser
     theuser = providedUsername
     global character
-    print(theuser)
-    characterJSON = FirebaseContact.readCharacter(theuser).get("character")
-    character = json.loads(characterJSON, object_hook = Character)
-    print(character)
+    document = FirebaseContact.readCharacter(theuser) 
+    characterJSON = {"exist":False,"character":""}
+    if(document != None):
+        character = Character.createFromJSON(json.loads(document.get("character")))
+        characterJSON = {"exist":True,"character":character.toJSON()}
+    return characterJSON
 
 
 #Create the main history. Then use this history to describe the events to interact with the player.
@@ -95,23 +97,10 @@ def NextTurn(playerResponse):
         character.completeAdventure(adventure)
         characterJson = character.toJSON()
         FirebaseContact.updateCharacter(theuser,characterJson)
-        print("Adventure finished")
         return
-    print(adventure)
     userPrompt = input("Enter next action")
     NextTurn(userPrompt)
 
-
-characterNamePrompt = input("Enter a name for your character")
-playerConnect(characterNamePrompt)
-if(character != None):
-    userPrompt = input("Give hints for your first adventure.")
-    StartAdventure(userPrompt)
-else:
-    userPrompt = input("Enter a description for your character")
-    createCharacter(userPrompt)
-    userPrompt = input("Give hints for your first adventure.")
-    StartAdventure(userPrompt)
 
 
 
