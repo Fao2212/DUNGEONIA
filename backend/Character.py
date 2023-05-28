@@ -37,6 +37,7 @@ class Character:
         char.experieceToNextLevel = input.get("experieceToNextLevel")
         char.numberOfAdventures = input.get("numberOfAdventures")
         #Add the first image to the image list
+        char.currentImage = input.get("currentImage")
         char.images = input.get("images")
         char.nextCharacterUpgrade = input.get("nextCharacterUpgrade")
         char.journal = input.get("journal")

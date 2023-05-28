@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, Form, Row, Navbar, Nav } from "react-bootstrap"
+import { Button, Container, Form, Row, Navbar, Nav, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router-dom";
 
 function ShowDescriptionBox(props) {
     const [characterDescription, setCharacterDescription] = useState("")
-    let navigate = useNavigate(); 
-    const goHome = () =>{ 
-        let path = `home`; 
+    const [isLoading, setLoading] = useState(false)
+    let navigate = useNavigate();
+    const goHome = () => {
+        let path = `home`;
         navigate(path);
     }
 
     async function ButtonFunctionallity() {
         const request = { "characterDescription": characterDescription }
+        setLoading(true)
         const respose = await fetch("/createCharacter", {
             method: 'POST',
             headers: {
@@ -26,13 +28,18 @@ function ShowDescriptionBox(props) {
     }
 
     if (props.userExist === false) {
-        return <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-            <Form.Label>Character Descrtiption</Form.Label>
-            <Form.Control as="textarea" rows={3} placeholder="Enter a description for your character" onChange={e => setCharacterDescription(e.target.value)} />
-            <Button onClick={ButtonFunctionallity}>
-                Create
-            </Button>
-        </Form.Group>
+        if (isLoading === false) {
+            return <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                <Form.Label>Character Descrtiption</Form.Label>
+                <Form.Control as="textarea" rows={3} placeholder="Enter a description for your character" onChange={e => setCharacterDescription(e.target.value)} />
+                <Button onClick={ButtonFunctionallity}>
+                    Create
+                </Button>
+            </Form.Group>
+        }
+        else {
+            return <Spinner animation="grow" variant="warning" />
+        }
     }
     else {
         return null
@@ -45,8 +52,8 @@ export const Login = () => {
     const [userName, setUserName] = useState("")
     const [userExist, setUserExist] = useState(true)
 
-    let navigate = useNavigate(); 
-    const goHome = () =>{ 
+    let navigate = useNavigate();
+    const goHome = () => {
         let path = `home`
         navigate(path)
     }
@@ -62,7 +69,7 @@ export const Login = () => {
         }).then(respose => respose.json()).then(
             data => {
                 setUserExist(data.exist)
-                if(data.exist){
+                if (data.exist) {
                     goHome()
                 }
             }
