@@ -38,9 +38,7 @@ def createCharacter(userPrompt):
     image = IAContact.get_image(imagePrompt,theuser)
     global character
     character = Character(theuser,characterDescription,image)
-    print(characterTraits)
     character.setTraits(characterTraits)
-    character.printUser()
     #Save character in the database
     return {"created":FirebaseContact.createUser(theuser,character.toJSON())}
     
@@ -62,7 +60,7 @@ def playerConnect(providedUsername):
 adventureSAUCE = """
 Create a D&D history using the description points provide. Make the history engaging and define the next things into it. Create a paragraph dont divide the text.
     allies,
-    nameOfThePlaceWhereTheAdventureDevelop,
+    place,
     enemies,
     mainQuest
 """
@@ -75,9 +73,7 @@ def StartAdventure(userPrompt):
     currentTurn = 1
     global adventure
     adventure = IAContact.get_response(f"{adventureSAUCE} Protagonist of the history:{character.stringToPrompt()} History Initial Plot: {userPrompt}",theuser)
-    print(adventure)
-    userPrompt = input("Enter next action")
-    NextTurn(userPrompt)
+    return {"canPlayAdventure":True,"adventure":adventure}
 
 
 eventString = "Create a continuation to this history. Using this caracter information"
@@ -97,9 +93,8 @@ def NextTurn(playerResponse):
         character.completeAdventure(adventure)
         characterJson = character.toJSON()
         FirebaseContact.updateCharacter(theuser,characterJson)
-        return
-    userPrompt = input("Enter next action")
-    NextTurn(userPrompt)
+        return {"canPlayAdventure":False,"adventure":adventure}
+    return {"canPlayAdventure":True,"adventure":adventure}
 
 def getCharacter():
     return {"characterInfo":character.toJSON()}

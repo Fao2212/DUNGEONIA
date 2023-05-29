@@ -4,7 +4,7 @@ from firebase_admin import firestore
 from firebase import firebase
 import os
 
-cred = credentials.Certificate("backend\serviceAccountKey.json")
+cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client() # connecting to firestore
 firebase = firebase.FirebaseApplication('https://DUNGEONIA.firebaseio.com', None)
